@@ -1,7 +1,7 @@
 import functools
 import time
 from typing import Callable, Any, TypeVar, ParamSpec
-from src.async_logger import AsyncLogger
+from sentinel.logger import AsyncLogger
 
 _default_logger = None
 
@@ -15,6 +15,7 @@ def get_logger():
 
 P = ParamSpec("P")
 R = TypeVar("R")
+
 
 def trace(logger: AsyncLogger = None):
     _logger = logger or get_logger()
@@ -31,8 +32,6 @@ def trace(logger: AsyncLogger = None):
                 raise
             finally:
                 end_time = time.perf_counter()
-                # Send the data to our background worker
-                print ("logging for func", func.__name__)
                 _logger.log({
                     "function": func.__name__,
                     "duration_ms": (end_time - start_time) * 1000,
@@ -42,3 +41,27 @@ def trace(logger: AsyncLogger = None):
     return decorator
 
 
+class TimeBlock:
+    def __init__(self, logger, label: str):
+        self.logger = logger
+        self.label = label
+        self.start_time: Optional[float] = None
+
+    def __enter__(self):
+        self.start_time = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        end_time = time.perf_counter()
+        duration_ms = (end_time - self.start_time) * 1000
+        
+        status = "success" if exc_type is None else "error"
+        
+        self.logger.log({
+            "block_label": self.label,
+            "duration_ms": duration_ms,
+            "status": status,
+            "error": str(exc_val) if exc_val else "n/a"
+        })
+
+        return False
