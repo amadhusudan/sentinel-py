@@ -29,7 +29,7 @@ class AsyncLogger:
     def _write_to_storage(self, data: Dict[str, Any]):
         """Appends a single log entry as a JSON line."""
         try:
-            with open("sentinel_logs.jsonl", "a", encoding="utf-8") as f:
+            with open(self._config.log_file, "a", encoding="utf-8") as f:
                 line = json.dumps(data)
                 f.write(line + "\n")
         except Exception as e:

@@ -7,6 +7,9 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+*.egg-info/
+dist/
+build/
 
 # Environments
 .env
@@ -25,4 +28,4 @@ venv.bak/
 .DS_Store
 
 # temp files
-sentinel_logs.jsonl
+*.jsonl
