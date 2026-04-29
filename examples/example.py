@@ -1,35 +1,38 @@
-from sentinel.tracer import trace, TimeBlock
-from sentinel.logger import AsyncLogger
+from __future__ import annotations
+
 import time
 
-logger = AsyncLogger()
+from sentinel import AsyncLogger, TimeBlock, trace
 
-@trace(logger)
-def slow_function_1():
-    time.sleep(1)
-    return "Done 1"
 
-@trace(logger)
-def slow_function_2():
-    time.sleep(2)
-    return "Done 2"
+def main() -> None:
+    logger = AsyncLogger()
 
-@trace(logger)
-def process_everything():
-    # Part 1: Some fast code
-    print("Doing fast stuff...")
-    
-    # Part 2: Time only the specific slow loop
-    with TimeBlock(logger, label="data_crunching"):
-        time.sleep(1.5)
-        print("Crunching complete.")
+    # 1. Plain trace — record uses the function name only.
+    @trace(logger)
+    def slow_function_1() -> str:
+        time.sleep(1)
+        return "Done 1"
+
+    # 2. Trace with a label — disambiguates traces and groups them by domain term.
+    @trace(logger, label="slow_path")
+    def slow_function_2() -> str:
+        time.sleep(2)
+        return "Done 2"
+
+    # 3. Trace at the function level + TimeBlock inside it. Both records carry a label,
+    #    making it easy to correlate the outer call with the inner hot section.
+    @trace(logger, label="checkout")
+    def process_everything() -> None:
+        with TimeBlock(logger, label="data_crunching"):
+            time.sleep(1.5)
+
+    slow_function_1()
+    slow_function_2()
+    process_everything()
+
+    logger.shutdown()
 
 
 if __name__ == "__main__":
-    print("Running library example...")
-    print("calling slow_function_1")
-    slow_function_1()
-    print("calling slow_function_2")
-    slow_function_2()
-    print("calling process_everything")
-    process_everything()
+    main()

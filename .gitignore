@@ -29,3 +29,11 @@ venv.bak/
 
 # temp files
 *.jsonl
+
+# local planning docs (not shipped)
+feature_roadmap.md
+
+# Claude Code project files (not shipped)
+.claude/
+CLAUDE.md
+CLAUDE.md:Zone.Identifier
