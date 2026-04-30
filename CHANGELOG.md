@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - Unreleased
+## [0.1.0] - 2026-04-30
 
-Initial public release.
+Initial public release. Published to PyPI as `sentinel-trace`.
 
 ### Added
 
@@ -53,5 +53,5 @@ Initial public release.
 - No distributed trace propagation, custom tags, or argument capture in this
   release. See `feature_roadmap.md` for the planned 0.2.0 surface.
 
-[Unreleased]: https://github.com/amadhusudan/sentinel-py/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/amadhusudan/sentinel-py/releases/tag/v0.1.0
+[Unreleased]: https://github.com/amadhusudan/sentinel-trace/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/amadhusudan/sentinel-trace/releases/tag/v0.1.0

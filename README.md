@@ -1,4 +1,4 @@
-# sentinel-py
+# sentinel-trace
 
 A thread-safe, asynchronous observability toolkit for Python. Drops structured
 JSONL logs to disk from a background worker so your hot path stays fast.
@@ -6,7 +6,7 @@ JSONL logs to disk from a background worker so your hot path stays fast.
 ## Install
 
 ```bash
-pip install sentinel-py
+pip install sentinel-trace
 ```
 
 ## Usage
