@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sentinel-trace"
-version = "0.1.0"
+version = "0.2.0"
 description = "A thread-safe, asynchronous observability toolkit for Python."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -27,6 +27,9 @@ classifiers = [
 dependencies = [
     "pydantic>=2.0.0"
 ]
+
+[project.scripts]
+sentinel = "sentinel.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -68,6 +71,11 @@ testpaths = ["tests"]
 [tool.coverage.run]
 branch = true
 source = ["sentinel"]
+omit = [
+    # Module entry point — runs only via `python -m sentinel`, not importable.
+    # Covered indirectly by every CLI test that invokes cli.main.
+    "sentinel/__main__.py",
+]
 
 [tool.coverage.report]
 show_missing = true

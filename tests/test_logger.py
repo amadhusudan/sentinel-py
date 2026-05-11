@@ -261,3 +261,44 @@ def test_logger_shutdown_after_worker_death_is_safe(tmp_path):
     inst._worker.join(timeout=2.0)
 
     inst.shutdown(timeout=1.0)  # must not raise or hang
+
+
+def test_write_record_drops_unserializable_record(tmp_path, caplog):
+    """A non-JSON-serializable record (non-string dict key) is logged at error
+    level and dropped — the worker stays alive."""
+    fh_path = tmp_path / "out.jsonl"
+    bad_record = {object(): "value"}  # json.dumps rejects non-string keys
+
+    with caplog.at_level(logging.ERROR, logger="sentinel"), fh_path.open("w") as fh:
+        AsyncLogger._write_record(bad_record, fh)
+
+    assert "failed to serialize" in caplog.text
+    # Nothing was written.
+    assert fh_path.read_text() == ""
+
+
+def test_flush_with_no_timeout_returns_true_after_drain(logger):
+    """Default flush() (no timeout) takes the `queue.join()` path and returns True."""
+    logger.log({"event": "x"})
+    assert logger.flush() is True
+    logger.shutdown()
+
+
+def test_drain_after_worker_failure_clears_remaining_items(tmp_path):
+    """When the worker dies with items still in flight, _drain_queue_after_failure
+    must consume them so any blocked flush() can unblock."""
+    inst = AsyncLogger(SentinelConfig(log_file=tmp_path / "log.jsonl"))
+    inst.shutdown(timeout=1.0)
+
+    # Simulate post-failure state and inject a leftover record.
+    inst._worker_failed = True
+    inst._closed = True
+    inst._queue.put({"orphan": 1})
+    inst._queue.put({"orphan": 2})
+
+    inst._drain_queue_after_failure()
+
+    import queue
+
+    with pytest.raises(queue.Empty):
+        inst._queue.get_nowait()
